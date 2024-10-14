@@ -106,3 +106,35 @@ class PostCommentAPIView(APIView):
         # Delete the comment
         comment.delete()
         return Response({"message": "Comment deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+ 
+# GENERIC VIEWS
+class PostsListView(generics.ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = HomePostSerializer
+    permission_classes = [IsAuthenticated]
+    
+
+class UserPosts(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        return user.user_posts.all()
+    
+    def perform_create(self, serializer):
+        return serializer.save(author = self.request.user)
+    
+
+class UserPostRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Post.objects.filter(author=self.request.user)
+
+        
