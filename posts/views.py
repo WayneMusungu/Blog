@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from posts.serializers import CommentSerializer, HomePostSerializer, PostSerializer
+from django.core.exceptions import PermissionDenied
 
 # Create your views here.
 
@@ -136,5 +137,46 @@ class UserPostRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Post.objects.filter(author=self.request.user)
-
+    
+    def get_object(self):
+        post_id = self.kwargs.get("post_id")
+        post = get_object_or_404(Post, id=post_id)
         
+        if post.author != self.request.user:
+            raise PermissionDenied("You are not allowed to modify this post.")
+                
+        return post
+     
+
+class PostCommentView(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        post_id = self.kwargs['post_id']
+        post = get_object_or_404(Post, pk=post_id)
+        return Comment.objects.filter(post=post)
+    
+    def perform_create(self, serializer):
+        post_id = self.kwargs['post_id']
+        post = get_object_or_404(Post, pk=post_id)
+        serializer.save(author=self.request.user, post=post)
+        
+        
+class PostCommentUpdateRetrieveDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        post_id = self.kwargs['post_id']
+        comment_id = self.kwargs['comment_id']
+        post = get_object_or_404(Post, id=post_id)
+        
+        comment = get_object_or_404(Comment, post=post, id=comment_id)
+                
+        if comment.author != self.request.user:
+            raise PermissionDenied("You are not allowed to modify this comment.")
+        
+        return comment
