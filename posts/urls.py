@@ -16,4 +16,5 @@ urlpatterns = [
     path('v2/post/<int:post_id>', UserPostRetrieveUpdateDestroyView.as_view(), name='post-retrieve-update-destroy'),
     path('v2/post/<int:post_id>/comment/', PostCommentView.as_view(), name='post-comment-create-list'),
     path('v2/post/<int:post_id>/comments/<int:comment_id>/', PostCommentUpdateRetrieveDestroyView.as_view(), name='post-comment-retrieve-update-delete'),
+    # path('v2/post/?search=<search_query>', Search.as_view(), name='search')
 ]

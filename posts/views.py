@@ -1,5 +1,5 @@
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from posts.models import Comment, Post
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -180,3 +180,15 @@ class PostCommentUpdateRetrieveDestroyView(generics.RetrieveUpdateDestroyAPIView
             raise PermissionDenied("You are not allowed to modify this comment.")
         
         return comment
+    
+    
+# class Search(generics.ListAPIView):
+#     queryset = Post.objects.all()
+#     serializer_class = PostSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         search_query = self.request.query_params.get('search')
+#         if search_query:
+#             queryset = queryset.filter(title__icontains=search_query)
+#         return queryset
