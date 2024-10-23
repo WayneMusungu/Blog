@@ -5,6 +5,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from posts.pagination import SmallResultSetPagination
 from posts.serializers import CommentSerializer, HomePostSerializer, PostSerializer
 from django.core.exceptions import PermissionDenied
 
@@ -114,7 +115,7 @@ class PostCommentAPIView(APIView):
 class PostsListView(generics.ListAPIView):
     queryset = Post.objects.all()
     serializer_class = HomePostSerializer
-    permission_classes = [IsAuthenticated]
+    pagination_class = SmallResultSetPagination
     
 
 class UserPosts(generics.ListCreateAPIView):
