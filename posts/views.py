@@ -1,6 +1,6 @@
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from posts.models import Comment, Post
+from rest_framework.permissions import IsAuthenticated
+from posts.models import Category, Comment, Post
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from posts.pagination import SmallResultSetPagination
 from posts.serializers import CommentSerializer, HomePostSerializer, PostSerializer
 from django.core.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound
 
 # Create your views here.
 
@@ -181,15 +182,21 @@ class PostCommentUpdateRetrieveDestroyView(generics.RetrieveUpdateDestroyAPIView
             raise PermissionDenied("You are not allowed to modify this comment.")
         
         return comment
-    
-    
-# class Search(generics.ListAPIView):
-#     queryset = Post.objects.all()
-#     serializer_class = PostSerializer
-#     permission_classes = [IsAuthenticated]
 
-#     def get_queryset(self):
-#         search_query = self.request.query_params.get('search')
-#         if search_query:
-#             queryset = queryset.filter(title__icontains=search_query)
-#         return queryset
+
+class SearchPostsByCategoryView(generics.ListAPIView):
+    serializer_class = HomePostSerializer
+    permission_classes = []
+    
+    def get_queryset(self):
+        category_name = self.request.query_params.get('category', None)
+        if not category_name:
+            return Post.objects.none()  # Return empty queryset if no category name is provided
+
+        try:
+            category = Category.objects.get(name__iexact=category_name)  # Case-insensitive match
+        except Category.DoesNotExist:
+            raise NotFound("Category not found.")
+        
+        return Post.objects.filter(categories=category)
+    

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from posts.views import PostCommentAPIView, PostCommentUpdateRetrieveDestroyView, PostCommentView, PostsListView, UserPostCreateListView, UserPostRetrieveUpdateDestroyView, UserPosts
+from posts.views import PostCommentAPIView, PostCommentUpdateRetrieveDestroyView, PostCommentView, PostsListView, SearchPostsByCategoryView, UserPostCreateListView, UserPostRetrieveUpdateDestroyView, UserPosts
 
 
 urlpatterns = [
@@ -16,5 +16,5 @@ urlpatterns = [
     path('v2/post/<int:post_id>', UserPostRetrieveUpdateDestroyView.as_view(), name='post-retrieve-update-destroy'),
     path('v2/post/<int:post_id>/comment/', PostCommentView.as_view(), name='post-comment-create-list'),
     path('v2/post/<int:post_id>/comments/<int:comment_id>/', PostCommentUpdateRetrieveDestroyView.as_view(), name='post-comment-retrieve-update-delete'),
-    # path('v2/post/?search=<search_query>', Search.as_view(), name='search')
+    path('v2/search/', SearchPostsByCategoryView.as_view(), name='search-posts-by-category'),
 ]
