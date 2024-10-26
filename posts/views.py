@@ -121,9 +121,11 @@ class PostsListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Post.objects.all()
-        author_username = self.request.query_params.get('author', None)
+        author_username = self.request.query_params.get('author')
         if author_username:
             queryset = queryset.filter(author__username__iexact=author_username)
+            if not queryset:
+                raise NotFound(f"No posts found for author {author_username}")
         return queryset 
 
 
