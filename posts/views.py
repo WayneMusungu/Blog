@@ -116,12 +116,16 @@ class PostCommentAPIView(APIView):
  
 # GENERIC VIEWS
 class PostsListView(generics.ListAPIView):
-    queryset = Post.objects.all()
     serializer_class = HomePostSerializer
-    filter_backends = [DjangoFilterBackend]
-    filter_fields = ['title']
     pagination_class = SmallResultSetPagination
-    
+
+    def get_queryset(self):
+        queryset = Post.objects.all()
+        author_username = self.request.query_params.get('author', None)
+        if author_username:
+            queryset = queryset.filter(author__username__iexact=author_username)
+        return queryset 
+
 
 class UserPosts(generics.ListCreateAPIView):
     queryset = Post.objects.all()
