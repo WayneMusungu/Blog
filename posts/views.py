@@ -1,5 +1,6 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from posts.filters import PostFilter
 from posts.models import Category, Comment, Post
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -9,6 +10,7 @@ from posts.pagination import SmallResultSetPagination
 from posts.serializers import CommentSerializer, HomePostSerializer, PostSerializer
 from django.core.exceptions import PermissionDenied
 from rest_framework.exceptions import NotFound
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Create your views here.
 
@@ -116,6 +118,8 @@ class PostCommentAPIView(APIView):
 class PostsListView(generics.ListAPIView):
     queryset = Post.objects.all()
     serializer_class = HomePostSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['title']
     pagination_class = SmallResultSetPagination
     
 
@@ -182,21 +186,28 @@ class PostCommentUpdateRetrieveDestroyView(generics.RetrieveUpdateDestroyAPIView
             raise PermissionDenied("You are not allowed to modify this comment.")
         
         return comment
-
+    
 
 class SearchPostsByCategoryView(generics.ListAPIView):
+    queryset = Post.objects.all()
     serializer_class = HomePostSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PostFilter
     permission_classes = []
-    
-    def get_queryset(self):
-        category_name = self.request.query_params.get('category', None)
-        if not category_name:
-            return Post.objects.none()  # Return empty queryset if no category name is provided
 
-        try:
-            category = Category.objects.get(name__iexact=category_name)  # Case-insensitive match
-        except Category.DoesNotExist:
-            raise NotFound("Category not found.")
-        
-        return Post.objects.filter(categories=category)
+
+# class SearchPostsByCategoryView(generics.ListAPIView):
+#     serializer_class = HomePostSerializer
+#     permission_classes = []
     
+#     def get_queryset(self):
+#         category_name = self.request.query_params.get('category', None)
+#         if not category_name:
+#             return Post.objects.none()  # Return empty queryset if no category name is provided
+
+#         try:
+#             category = Category.objects.get(name__icontains=category_name)  # Case-insensitive match
+#         except Category.DoesNotExist:
+#             raise NotFound("Category not found.")
+        
+#         return Post.objects.filter(categories=category)
