@@ -130,16 +130,16 @@ class PostsListView(generics.ListAPIView):
 
 
 class UserPosts(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         user = self.request.user
-        return user.user_posts.all()
+        # Using select_related for author and prefetch_related for categories
+        return user.user_posts.select_related('author').prefetch_related('categories')
     
     def perform_create(self, serializer):
-        return serializer.save(author = self.request.user)
+        return serializer.save(author=self.request.user)
     
 
 class UserPostRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
