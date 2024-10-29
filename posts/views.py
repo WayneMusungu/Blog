@@ -11,6 +11,7 @@ from posts.serializers import CommentSerializer, HomePostSerializer, PostSeriali
 from django.core.exceptions import PermissionDenied
 from rest_framework.exceptions import NotFound
 from django_filters.rest_framework import DjangoFilterBackend
+from silk.profiling.profiler import silk_profile
 
 # Create your views here.
 
@@ -133,6 +134,7 @@ class UserPosts(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
     
+    @silk_profile(name="User's Post") 
     def get_queryset(self):
         user = self.request.user
         # Using select_related for author and prefetch_related for categories
