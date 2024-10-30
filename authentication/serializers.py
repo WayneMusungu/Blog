@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from authentication.models import User
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from authentication.tasks import send_thank_you_email
 
 
 def validate_special_character(value):
@@ -56,4 +57,8 @@ class LoginSerializer(serializers.Serializer):
             'refresh': str(refresh),
             'access': str(refresh.access_token)
         }
+        
+        # Trigger the thank-you email task
+        send_thank_you_email.delay(user.email)
+        
         return user, tokens
