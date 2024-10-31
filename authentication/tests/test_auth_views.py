@@ -2,6 +2,7 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework import status
 from authentication.models import User
+from unittest.mock import patch
 
 
 class UserRegistrationTest(APITestCase):
@@ -88,9 +89,10 @@ class LoginViewTest(APITestCase):
         
     def tearDown(self):
         self.user.delete()
-        
-    def test_login_success(self):
-        """Test login with valid credentials"""
+    
+    @patch('authentication.serializers.send_thank_you_email.delay')
+    def test_login_success_email_task_triggered(self, mock_send_email_task):
+        """Test that a successful login triggers the thank-you email task"""
         url = reverse('login')
         data = {
             'email': 'janedoe@example.com',
@@ -102,8 +104,12 @@ class LoginViewTest(APITestCase):
         self.assertIn('access', response.data)
         self.assertIn('refresh', response.data)
         
-    def test_login_invalid_credentials(self):
-        """Test login with invalid credentials"""
+        # Check that the email task was called once with the correct argument
+        mock_send_email_task.assert_called_once()
+     
+    @patch('authentication.serializers.send_thank_you_email.delay')   
+    def test_login_does_not_trigger_email_task_on_failed_login(self, mock_send_email_task):
+        """Test that the thank-you email task is not triggered if login fails"""
         url = reverse('login')
         data = {
             'email': 'jane@example.com',
@@ -113,6 +119,9 @@ class LoginViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data['status'], False)
         self.assertEqual(response.data['detail'], 'Authentication failed')
+        
+        # Ensure the email task was not triggered
+        mock_send_email_task.assert_not_called()
         
     def test_login_user_does_not_exist(self):
         """Test login with non-existing user"""
