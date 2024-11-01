@@ -74,4 +74,14 @@ class UserPostsAPIView(APITestCase):
         }
         response = self.client.get(url, data, format='json')        
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data['detail'], "No posts found for author warren")
+        self.assertEqual(response.data['detail'], "No posts found for author warren")   
+ 
+    def test_query_search_filter_author(self):
+        result = Post.objects.filter(author__username__iexact='janedoe').values('title', 'author__email')
+        
+        print("Query Result:", result)
+        
+        self.assertQuerySetEqual(
+            result,
+            [{'title': 'Introduction to Django', 'author__email': 'janedoe@test.com'}]
+        )
