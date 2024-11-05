@@ -161,3 +161,87 @@ class UserPostsAPIViewTest(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(self.user_one.user_posts.count(), 2)
+        
+    def test_retrieve_post_success(self):
+        self.client.force_authenticate(user=self.user_one)
+        self.url = reverse('post-retrieve-update-destroy', kwargs={'post_id': self.post.id})
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], self.post.title)
+        
+    def test_partial_update_post_success(self):
+        self.client.force_authenticate(user=self.user_one)
+        self.url = reverse('post-retrieve-update-destroy', kwargs={'post_id': self.post.id})
+        updated_data = {
+            "title": "Updated Javascript Post",
+            "body": "Updated content of the Javascript post.",
+        }
+        response = self.client.patch(self.url, updated_data, format='json')
+        self.assertEqual(response.data['title'], 'Updated Javascript Post')
+        self.assertEqual(response.data['body'], updated_data['body'])         
+    
+    def test_update_post_success(self):
+        self.client.force_authenticate(user=self.user_one)
+        self.url = reverse('post-retrieve-update-destroy', kwargs={'post_id': self.post.id})
+        updated_data = {
+            "title": "Updated Javascript Post",
+            "body": "Updated content of the Javascript post.",
+            "categories": [
+                {"name": "JavaScript"},
+                {"name": "Django"}
+            ]
+        }
+        response = self.client.put(self.url, updated_data, format='json')
+        self.assertEqual(response.data['title'], 'Updated Javascript Post')
+        self.assertEqual(response.data['body'], updated_data['body']) 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)   
+        self.assertEqual(response.data['categories'][0]['name'], updated_data['categories'][0]['name'].lower())
+        self.assertEqual(response.data['categories'][1]['name'], updated_data['categories'][1]['name'].lower())
+        
+    def test_delete_post_success(self):
+        self.client.force_authenticate(user=self.user_one)
+        self.url = reverse('post-retrieve-update-destroy', kwargs={'post_id': self.post.id})
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(Post.DoesNotExist):
+            Post.objects.get(id=self.post.id)
+            
+    def test_retrieve_other_user_post(self):
+        self.client.force_authenticate(user=self.user_two)
+        self.url = reverse('post-retrieve-update-destroy', kwargs={'post_id': self.post.id})
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data['detail'], "You are not allowed to modify this post.")  
+        
+    def test_partial_update_post_fail(self):
+        self.client.force_authenticate(user=self.user_two)
+        self.url = reverse('post-retrieve-update-destroy', kwargs={'post_id': self.post.id})
+        updated_data = {
+            "title": "Updated Javascript Post",
+            "body": "Updated content of the Javascript post.",
+        }
+        response = self.client.patch(self.url, updated_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data['detail'], "You are not allowed to modify this post.")  
+        
+    def test_update_other_user_post_fail(self):
+        self.client.force_authenticate(user=self.user_two)
+        self.url = reverse('post-retrieve-update-destroy', kwargs={'post_id': self.post.id})
+        updated_data = {
+            "title": "Updated Javascript Post",
+            "body": "Updated content of the Javascript post.",
+            "categories": [
+                {"name": "JavaScript"},
+                {"name": "Django"}
+            ]
+        }
+        response = self.client.put(self.url, updated_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data['detail'], "You are not allowed to modify this post.")
+        
+    def test_delete_other_user_post(self):
+        self.client.force_authenticate(user=self.user_three)
+        self.url = reverse('post-retrieve-update-destroy', kwargs={'post_id': self.post.id})
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data['detail'], "You are not allowed to modify this post.")  

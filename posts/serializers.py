@@ -48,5 +48,23 @@ class PostSerializer(serializers.ModelSerializer):
             post.categories.add(category)
 
         return post
+    
+    def update(self, instance, validated_data):
+        # Update title and body fields
+        instance.title = validated_data.get('title', instance.title)
+        instance.body = validated_data.get('body', instance.body)
+
+        # Update categories
+        if 'categories' in validated_data:
+            categories_data = validated_data.pop('categories')
+            # Clear existing categories and add new ones
+            instance.categories.clear()
+            for category_data in categories_data:
+                category_data['name'] = category_data['name'].lower()
+                category, created = Category.objects.get_or_create(**category_data)
+                instance.categories.add(category)
+
+        instance.save()
+        return instance
         
 
