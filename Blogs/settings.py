@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_filters',
     'silk',
     'drf_spectacular',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -169,8 +170,8 @@ SILKY_PYTHON_PROFILER = True
 
 
 CELERY_BROKER_URL = "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_RESULT_BACKEND = "django-db"
+CLERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 
 EMAIL_BACKEND = config('EMAIL_BACKEND')

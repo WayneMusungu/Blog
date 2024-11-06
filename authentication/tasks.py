@@ -20,6 +20,8 @@ def send_thank_you_email(user_email):
 
         send_mail(subject, message, from_email, recipient_list)
         logger.info("Successfully sent thank you email to %s", user_email)
-
+        
+        return "Task Done!"
+    
     except Exception as e:
         logger.error("Failed to send thank you email to %s: %s", user_email, str(e))
