@@ -1,11 +1,11 @@
 from django.urls import path
 
-from posts.views import PostCommentAPIView, PostCommentUpdateRetrieveDestroyView, PostCommentView, PostsListView, SearchPostsByCategoryView, UserPostCreateListView, UserPostRetrieveUpdateDestroyView, UserPosts
-
+from posts.views import PostCommentAPIView, PostCommentUpdateRetrieveDestroyView, PostCommentView, PostsListView, SearchPostsByCategoryView, UserPostCreateListView, UserPostRetrieveUpdateDestroyView, UserPosts, UserPostsMine
 
 urlpatterns = [
     # APIVIEW
     path('v1/posts/', UserPostCreateListView.as_view(), name='user-post-list-create'),
+    path('v1/post/', UserPostsMine.as_view(), name='post-user'),
     path('v1/posts/<int:id>/', UserPostCreateListView.as_view(), name='user-post-update-delete'),
     path('v1/posts/<int:post_id>/comments/', PostCommentAPIView.as_view(), name='post-comment-list-create'),
     path('v1/posts/<int:post_id>/comments/<int:comment_id>/', PostCommentAPIView.as_view(), name='post-comment-update-delete'),

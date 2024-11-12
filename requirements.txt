@@ -12,8 +12,10 @@ click-repl==0.3.0
 Django==5.1.2
 django-celery-results==2.5.1
 django-debug-toolbar==4.4.6
+django-environ==0.11.2
 django-filter==24.3
 django-silk==5.2.0
+django-unfold==0.40.0
 djangorestframework==3.15.2
 djangorestframework-simplejwt==5.3.1
 drf-spectacular==0.27.2
@@ -26,6 +28,7 @@ jsonschema-specifications==2024.10.1
 kombu==5.4.2
 prometheus_client==0.21.0
 prompt_toolkit==3.0.48
+psycopg2-binary==2.9.10
 pycodestyle==2.12.1
 PyJWT==2.9.0
 python-dateutil==2.9.0.post0

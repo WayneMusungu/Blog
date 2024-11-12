@@ -13,7 +13,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 import os
-from decouple import config
+from environ import Env
+env = Env()
+Env.read_env()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -87,8 +90,12 @@ WSGI_APPLICATION = 'Blogs.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'postgres',
+        'PORT': 5432,
     }
 }
 
@@ -141,8 +148,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "authentication.User"
 
 
-AUTH_USER_MODEL = 'authentication.User'
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -174,10 +179,10 @@ CELERY_RESULT_BACKEND = "django-db"
 CLERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 
-EMAIL_BACKEND = config('EMAIL_BACKEND')
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_BACKEND = env('EMAIL_BACKEND', default="your_default_email_backend")
+EMAIL_HOST = env('EMAIL_HOST', default="your_default_email_host")
+EMAIL_PORT = env('EMAIL_PORT', cast=int, default=587)  # Example default port
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL=config('DEFAULT_FROM_EMAIL')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default="your_default_email_user")
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default="your_default_email_password")
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default="your_default_from_email")

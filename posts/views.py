@@ -112,6 +112,18 @@ class PostCommentAPIView(APIView):
         # Delete the comment
         comment.delete()
         return Response({"message": "Comment deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    
+    
+class UserPostsMine(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = self.request.user
+        
+        # posts = user.user_posts.select_related('author').prefetch_related('categories')
+        posts = Post.objects.filter(author=user).select_related('author').prefetch_related('categories')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
  
