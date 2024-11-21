@@ -12,6 +12,15 @@ from django.core.exceptions import PermissionDenied
 from rest_framework.exceptions import NotFound
 from django_filters.rest_framework import DjangoFilterBackend
 from silk.profiling.profiler import silk_profile
+from django_elasticsearch_dsl_drf.constants import SUGGESTER_COMPLETION
+from django_elasticsearch_dsl_drf.filter_backends import (
+    FilteringFilterBackend,
+    SearchFilterBackend,
+    SuggesterFilterBackend,
+)
+from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
+from posts.documents import PostDocument
+from posts.serializers import PostDocumentSerializer
 
 # Create your views here.
 
@@ -214,20 +223,31 @@ class SearchPostsByCategoryView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = PostFilter
     permission_classes = []
-
-
-# class SearchPostsByCategoryView(generics.ListAPIView):
-#     serializer_class = HomePostSerializer
-#     permission_classes = []
     
-#     def get_queryset(self):
-#         category_name = self.request.query_params.get('category', None)
-#         if not category_name:
-#             return Post.objects.none()  # Return empty queryset if no category name is provided
 
-#         try:
-#             category = Category.objects.get(name__icontains=category_name)  # Case-insensitive match
-#         except Category.DoesNotExist:
-#             raise NotFound("Category not found.")
-        
-#         return Post.objects.filter(categories=category)
+class PostDocumentView(DocumentViewSet):
+    document = PostDocument
+    serializer_class = PostDocumentSerializer
+
+    filter_backends = [
+        FilteringFilterBackend,
+        SearchFilterBackend,
+        SuggesterFilterBackend
+    ]
+
+    search_fields = (
+        'title',
+    )
+
+    filter_fields = {
+        'categories': 'categories.id'
+    }
+
+    suggester_fields = {
+        'title': {
+            'field': 'title.suggest',
+            'suggesters': [
+                SUGGESTER_COMPLETION,
+            ],
+        },
+    }

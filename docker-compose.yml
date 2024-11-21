@@ -65,8 +65,21 @@ services:
       - .env
     depends_on:
       - redis
+    
+      
+  esearch:
+    image: elasticsearch:8.13.0
+    container_name: blog-esearch-container
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - esearch_data:/usr/share/elasticsearch/data
 
 
 volumes:
   postgres_data: 
   redis_data:
+  esearch_data:

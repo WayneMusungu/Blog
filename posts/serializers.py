@@ -1,5 +1,10 @@
 from rest_framework import serializers
 from posts.models import Category, Comment, Post
+from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
+from posts.documents import PostDocument
+
+
+
 
 class HomePostSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
@@ -67,4 +72,13 @@ class PostSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
         
+        
+class PostDocumentSerializer(DocumentSerializer):
+    class Meta:
+        document = PostDocument
+
+        fields = (
+            'title',
+            'categories'
+        )
 

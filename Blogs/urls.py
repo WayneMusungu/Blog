@@ -17,7 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-import debug_toolbar
+from rest_framework import routers
+from posts.views import PostDocumentView
+
+
+router = routers.SimpleRouter(trailing_slash=False)
+router.register('post-search', PostDocumentView, basename='post-search')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,4 +32,5 @@ urlpatterns = [
     path('silk/', include('silk.urls', namespace='silk')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-] 
+]
+urlpatterns += router.urls

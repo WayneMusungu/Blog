@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'silk',
     'drf_spectacular',
     'django_celery_results',
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
 ]
 
 MIDDLEWARE = [
@@ -186,3 +188,15 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default="your_default_email_user")
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default="your_default_email_password")
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default="your_default_from_email")
+
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://esearch:9200',
+    }
+}
+
+
+ELASTICSEARCH_INDEX_NAMES = {
+    'posts.post': 'posts',
+}
